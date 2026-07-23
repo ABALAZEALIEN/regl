@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Özel Döngü Takvimi</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+
+  <div class="phone-frame">
+
+    <!-- Açılış Ekranı -->
+    <div id="splashScreen" class="splash-screen">
+      <div class="splash-content">
+        <h1 class="splash-text">Hoşgeldinnnn güzelimmm ❤️</h1>
+        <h2 class="splash-subtext">Çokkk geçmişşş olsunnn...</h2>
+      </div>
+    </div>
+
+    <!-- Ana Uygulama Konteyneri -->
+    <div class="app-container" id="mainApp">
+      
+      <!-- SEKME 1: TAKVİM -->
+      <main id="tab-takvim" class="tab-content active">
+        <div class="hero-circle-container">
+          <div class="hero-bg" style="background-image: url('images/arkaplan.png');"></div>
+          <div class="hero-content">
+            <span id="cycleDayNumber" class="big-number">1</span>
+            <span class="big-label">'inci adet günü</span>
+            <button id="quickLogBtn" class="edit-badge">Regli Düzenle</button>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3>Sonraki Döngüye Kalan</h3>
+          <p id="daysLeftText">Kayıt bekleniyor</p>
+          <span id="erkamNote" class="daily-note">"Bugün dinlenmeyi ve su içmeyi unutma bebeğimmm"</span>
+        </div>
+
+        <!-- Duygu Durum Seçim Alanı -->
+        <div id="moodCardWrapper" class="mood-card-wrapper hidden">
+          <div class="mood-card">
+            <h3 id="moodCardTitle">Bugün kendini nasıl hissediyorsun güzelim?</h3>
+            <div id="moodOptionsContainer" class="mood-options">
+              <button class="mood-btn" data-mood="Mutlu">😊 Mutlu</button>
+              <button class="mood-btn" data-mood="Üzgün">😢 Üzgün</button>
+              <button class="mood-btn" data-mood="Sinirli">😡 Sinirli</button>
+              <button class="mood-btn" data-mood="Gergin">🌪️ Gergin</button>
+              <button class="mood-btn" data-mood="Bilmiyorum/Diğer">❓ Bilmiyorum / Diğer</button>
+            </div>
+            <div id="moodReactionBox" class="mood-reaction-box" style="display: none;"></div>
+          </div>
+        </div>
+
+        <div class="calendar-card">
+          <div class="cal-header">
+            <button id="prevMonth" class="cal-nav-btn"><i class="ri-arrow-left-s-line"></i></button>
+            <span id="monthYearDisplay">Temmuz 2026</span>
+            <button id="nextMonth" class="cal-nav-btn"><i class="ri-arrow-right-s-line"></i></button>
+          </div>
+          <div class="weekdays">
+            <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+          </div>
+          <div class="days-grid" id="daysGrid"></div>
+        </div>
+      </main>
+
+      <!-- SEKME 2: NOTLAR -->
+      <main id="tab-notlar" class="tab-content">
+        <h2>Regli Başlangıç Notları</h2>
+
+        <div class="records-card">
+          <div class="records-header">
+            <span>Geçmiş Başlangıç Notları</span>
+            <button id="selectAllBtn" class="select-all-btn">Hepsini Seç</button>
+          </div>
+          <div id="recordsList" class="records-list"></div>
+          <div class="delete-btn-wrapper">
+            <button id="deleteSelectedBtn" class="delete-selected-btn">Seçilenleri Sil</button>
+          </div>
+        </div>
+      </main>
+
+      <!-- SEKME 3: SANA ÖZEL & PREMIUM -->
+      <main id="tab-special" class="tab-content">
+        <h2>Sadece Sana Özel</h2>
+        <div class="premium-jest-card">
+          <div class="biz-photo" style="background-image: url('images/biz.jpg');"></div>
+          <h3>Ömür Boyu Sonsuz Premium</h3>
+          <p>Bu uygulamanın tüm ayrıcalıkları, kilitleri ve sistemleri <b>Erkam</b> tarafından tamamen senin için sınırsız ve ömür boyu aktif edilmiştir ❤️</p>
+        </div>
+      </main>
+
+      <!-- SEKME 4: AYARLAR -->
+      <main id="tab-settings" class="tab-content">
+        <h2>Uygulama Ayarları</h2>
+        <div class="settings-list">
+          <div class="setting-item">
+          <div class="setting-item" style="border:none;">
+            <span>Veri Saklama Süresi</span>
+            <span class="setting-val">Maksimum 3 Ay (Otomatik Temizlenir)</span>
+          </div>
+        </div>
+      </main>
+
+    </div>
+
+    <!-- Alt Navigasyon -->
+    <nav class="bottom-nav" id="bottomNav">
+      <a href="#" class="nav-item active" data-target="tab-takvim">
+        <i class="ri-calendar-line"></i>
+        <span>Takvim</span>
+      </a>
+      <a href="#" class="nav-item" data-target="tab-notlar">
+        <i class="ri-file-text-line"></i>
+        <span>Notlar</span>
+      </a>
+      
+      <div class="nav-center-btn-wrapper">
+        <button id="mainPlusBtn" class="center-plus-btn">
+          <i class="ri-add-line"></i>
+        </button>
+      </div>
+
+      <a href="#" class="nav-item" data-target="tab-special">
+        <i class="ri-vip-crown-line"></i>
+        <span>Özel</span>
+      </a>
+      <a href="#" class="nav-item" data-target="tab-settings">
+        <i class="ri-settings-3-line"></i>
+        <span>Ayarlar</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

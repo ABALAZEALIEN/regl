@@ -1,0 +1,541 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: #1a1a1a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.phone-frame {
+  position: relative;
+  width: 100%;
+  max-width: 414px;
+  height: 100%;
+  max-height: 896px;
+  background-color: #fff4f6;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+@media (min-width: 415px) {
+  .phone-frame {
+    border-radius: 40px;
+    border: 10px solid #333;
+  }
+}
+
+/* Açılış Ekranı Animasyonu */
+.splash-screen {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, #ff4081 0%, #d81b60 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.splash-content { text-align: center; color: white; padding: 20px; animation: splashPulse 1.5s infinite alternate; }
+.splash-text { font-size: 24px; font-weight: 800; margin-bottom: 15px; }
+.splash-subtext { font-size: 16px; font-weight: 400; }
+.splash-hidden { opacity: 0; transform: scale(1.05); visibility: hidden; pointer-events: none; }
+
+@keyframes splashPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.03); }
+}
+
+/* Ana Alan & Sekme Geçiş Animasyonları */
+.app-container {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: calc(100% - 70px);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.tab-content {
+  display: none;
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+}
+
+.tab-content.active {
+  display: block;
+  animation: tabSmoothIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tabSmoothIn {
+  0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tab-content h2 { font-size: 20px; color: #d81b60; margin-bottom: 15px; text-align: center; }
+
+/* Çember */
+.hero-circle-container {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  margin: 5px auto 10px auto;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(216, 27, 96, 0.15);
+  overflow: hidden;
+  border: 4px solid #d81b60;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hero-circle-container:hover {
+  transform: scale(1.02);
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.30;
+  background-color: #fff;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.big-number {
+  display: block;
+  font-size: 42px;
+  font-weight: 900;
+  color: #d81b60;
+  line-height: 1;
+}
+
+.big-label {
+  display: block;
+  font-size: 12px;
+  color: #555;
+  margin-top: 3px;
+  font-weight: 600;
+}
+
+.edit-badge {
+  margin-top: 5px;
+  background: #d81b60;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(216,27,96,0.3);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.edit-badge:active { transform: scale(0.9); }
+
+.info-card {
+  background: white;
+  padding: 12px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+  margin-bottom: 12px;
+  transition: transform 0.3s;
+}
+
+.info-card h3 { font-size: 11px; color: #888; margin-bottom: 3px; }
+.info-card p { font-size: 15px; color: #d81b60; font-weight: bold; margin-bottom: 6px; }
+
+.daily-note {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+  background: #fff0f3;
+  padding: 6px;
+  border-radius: 8px;
+  border-left: 3px solid #d81b60;
+}
+
+/* Duygu Durum Kartı & Animasyonlu Geçişler */
+.mood-card-wrapper {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 250px;
+  opacity: 1;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.mood-card-wrapper.hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+  pointer-events: none;
+}
+
+.mood-card {
+  background: white;
+  padding: 14px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+}
+
+.mood-card h3 {
+  font-size: 13px;
+  color: #d81b60;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.mood-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.mood-btn {
+  background: #fff0f3;
+  border: 1px solid #ffd6df;
+  color: #d81b60;
+  padding: 6px 10px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mood-btn:hover {
+  background: #d81b60;
+  color: white;
+  border-color: #d81b60;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(216,27,96,0.25);
+}
+
+.mood-btn:active {
+  transform: scale(0.92);
+}
+
+.mood-reaction-box {
+  font-size: 15px;
+  font-weight: 800;
+  color: #d81b60;
+  padding: 10px;
+  animation: moodPopUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes moodPopUp {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Takvim Tasarımı ve Ay Geçiş Animasyonları */
+.calendar-card {
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+  margin-bottom: 15px;
+}
+
+.cal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: #d81b60;
+  font-size: 16px;
+}
+
+.cal-nav-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #d81b60;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 50%;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.cal-nav-btn:hover {
+  background: #fff0f3;
+}
+
+.cal-nav-btn:active {
+  transform: scale(0.85);
+}
+
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 8px;
+  text-align: center;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.days-grid.animating-left {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.days-grid.animating-right {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.day-cell {
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 13px;
+  color: #333;
+  border-radius: 50%;
+  margin: 0 auto;
+  width: 35px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.day-cell:hover {
+  background: #fce4ec;
+}
+
+.day-cell.period-active {
+  background-color: #ffd6df;
+  color: #d81b60;
+  font-weight: bold;
+}
+
+.day-cell.period-start {
+  background-color: #d81b60;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 3px 8px rgba(216,27,96,0.4);
+  animation: pulseStartDay 2s infinite;
+}
+
+@keyframes pulseStartDay {
+  0% { box-shadow: 0 0 0 0 rgba(216,27,96,0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(216,27,96,0); }
+  100% { box-shadow: 0 0 0 0 rgba(216,27,96,0); }
+}
+
+.day-cell.other-month {
+  color: #ccc;
+}
+
+/* Kayıtlar / Notlar Listesi */
+.records-card {
+  background: white;
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+  margin-bottom: 20px;
+}
+
+.records-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #d81b60;
+}
+
+.select-all-btn {
+  background: none;
+  border: none;
+  color: #d81b60;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.select-all-btn:active { opacity: 0.6; }
+
+.records-list {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+.record-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 5px;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
+  color: #444;
+  gap: 12px;
+  transition: background 0.2s;
+}
+
+.record-item input[type="checkbox"] {
+  accent-color: #d81b60;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.record-item input[type="checkbox"]:active { transform: scale(1.2); }
+
+.delete-btn-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.delete-selected-btn {
+  background: #d81b60;
+  color: white;
+  border: none;
+  padding: 8px 22px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(216,27,96,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.delete-selected-btn:active { transform: scale(0.92); box-shadow: 0 2px 5px rgba(216,27,96,0.2); }
+
+/* Premium ve Ayarlar */
+.premium-jest-card {
+  background: white;
+  border-radius: 20px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(216,27,96,0.1);
+}
+
+.biz-photo {
+  width: 100%;
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 15px;
+  margin-bottom: 12px;
+  background-color: #ddd;
+  transition: transform 0.3s;
+}
+
+.biz-photo:hover { transform: scale(1.02); }
+
+.premium-jest-card h3 { color: #d81b60; font-size: 17px; margin-bottom: 8px; }
+.premium-jest-card p { font-size: 12px; color: #555; line-height: 1.4; }
+
+.settings-list {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+}
+
+.setting-item {
+  padding: 15px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
+  color: #444;
+  transition: background 0.2s;
+}
+
+.setting-item:hover { background: #fafafa; }
+.setting-val { color: #888; font-size: 12px; }
+
+/* Alt Navigasyon */
+.bottom-nav {
+  position: absolute;
+  bottom: 0; left: 0; width: 100%;
+  height: 70px;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 10px;
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
+  border-top-left-radius: 25px;
+  border-top-right-radius: 25px;
+  z-index: 100;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: #bbb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  flex: 1;
+  transition: color 0.25s, transform 0.25s;
+}
+
+.nav-item i { font-size: 20px; }
+.nav-item.active { color: #d81b60; transform: translateY(-3px); }
+.nav-item:active { transform: scale(0.9); }
+
+.nav-center-btn-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.center-plus-btn {
+  position: absolute;
+  top: -28px;
+  width: 54px;
+  height: 54px;
+  background: linear-gradient(135deg, #ff4081 0%, #d81b60 100%);
+  color: white;
+  border: 4px solid #fff4f6;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 26px;
+  box-shadow: 0 6px 15px rgba(216, 27, 96, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.center-plus-btn:hover { transform: scale(1.08); }
+.center-plus-btn:active { transform: scale(0.9); box-shadow: 0 3px 8px rgba(216, 27, 96, 0.3); }
