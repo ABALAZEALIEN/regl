@@ -1,0 +1,20 @@
+{
+  "name": "Özel Döngü Takvimi",
+  "short_name": "Takvim",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fff4f6",
+  "theme_color": "#d81b60",
+  "icons": [
+    {
+      "src": "images/biz.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "images/biz.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
