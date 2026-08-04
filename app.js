@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 3. VERİ YÖNETİMİ ---
     let periodDates = JSON.parse(localStorage.getItem('periodDates')) || [];
     
-    // --- 4. DUYGU DURUMU VE ZAMANLAYICILAR (AKILLI KONTROL) ---
+    // --- 4. DUYGU DURUMU VE ZAMANLAYICILAR ---
     const moodCardWrapper = document.getElementById('moodCardWrapper');
     const moodReactionBox = document.getElementById('moodReactionBox');
     const moodOptionsContainer = document.getElementById('moodOptionsContainer');
@@ -54,8 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentMood = localStorage.getItem('savedMood');
     let moodSetDate = localStorage.getItem('moodSetDate');
     
-    let moodFadeOutTimer;
-    let wrapperHideTimer;
+    let moodTimer;
 
     const moodResponses = {
         "Mutlu": "Hep böyle gülmeye devam et bebeğim, seni seviyorum! ❤️",
@@ -81,20 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateMoodVisibility() {
         if (!moodCardWrapper) return;
-        
-        // Önceki animasyon ve gizleme komutlarını iptal et ki kart takılı kalmasın
-        clearTimeout(wrapperHideTimer);
-        clearTimeout(moodFadeOutTimer);
+        clearTimeout(moodTimer);
         
         if (isTodayPeriodDay()) {
+            moodCardWrapper.classList.remove('smooth-close');
             moodCardWrapper.style.display = 'block';
-            moodCardWrapper.classList.remove('hidden');
-            moodCardWrapper.style.opacity = '1';
             
-            // Üstünde daha önceden kalma silinme efekti varsa temizle
-            moodReactionBox.classList.remove('fade-out-msg');
-
-            // Eğer bugün zaten bir duygu seçildiyse mesajı göster, yoksa soruları sor
             if (currentMood && moodSetDate === todayStr) {
                 showMoodReaction(currentMood, false); 
             } else {
@@ -114,19 +105,18 @@ document.addEventListener('DOMContentLoaded', () => {
         moodCardTitle.style.display = 'none';
         
         moodReactionBox.innerHTML = moodResponses[mood] || "Seni çok seviyorum!";
-        moodReactionBox.classList.remove('fade-out-msg');
         moodReactionBox.style.display = 'block';
-        moodReactionBox.style.opacity = '1';
 
-        clearTimeout(moodFadeOutTimer);
-        clearTimeout(wrapperHideTimer);
+        clearTimeout(moodTimer);
 
         if(triggerTimeout) {
-            moodFadeOutTimer = setTimeout(() => {
-                moodReactionBox.classList.add('fade-out-msg');
-                wrapperHideTimer = setTimeout(() => {
-                    if(moodCardWrapper) moodCardWrapper.style.display = 'none';
-                }, 1000); 
+            moodTimer = setTimeout(() => {
+                if(moodCardWrapper) {
+                    moodCardWrapper.classList.add('smooth-close');
+                    setTimeout(() => {
+                        moodCardWrapper.style.display = 'none';
+                    }, 600);
+                }
             }, 6500); 
         }
     }
@@ -243,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
         periodDates.sort().reverse();
         localStorage.setItem('periodDates', JSON.stringify(periodDates));
         
-        // EĞER BUGÜNÜ REGL OLARAK İŞARETLEDİYSE VEYA KALDIRDIYSA HAFIZAYI TAMAMEN SIFIRLA!
         if (dateStr === todayStr) {
             localStorage.removeItem('savedMood');
             localStorage.removeItem('moodSetDate');
@@ -254,10 +243,23 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar();
     }
 
-    function toggleTodayPeriod() { togglePeriodDate(todayStr); }
+    function forceLogTodayAsPeriod() {
+        if (!periodDates.includes(todayStr)) {
+            periodDates.push(todayStr);
+            periodDates.sort().reverse();
+            localStorage.setItem('periodDates', JSON.stringify(periodDates));
+        }
+        
+        localStorage.removeItem('savedMood');
+        localStorage.removeItem('moodSetDate');
+        currentMood = null;
+        moodSetDate = null;
+        
+        renderCalendar();
+    }
 
-    if (mainPlusBtn) mainPlusBtn.addEventListener('click', toggleTodayPeriod);
-    if (quickLogBtn) quickLogBtn.addEventListener('click', toggleTodayPeriod);
+    if (mainPlusBtn) mainPlusBtn.addEventListener('click', forceLogTodayAsPeriod);
+    if (quickLogBtn) quickLogBtn.addEventListener('click', forceLogTodayAsPeriod);
 
     function updateDashboardInfo() {
         if (!cycleDayNumber || !daysLeftText) return;
@@ -308,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="checkbox" value="${dateStr}" class="record-check">
                 <span>${d}.${m}.${y} - Regl Başlangıcı</span>
             `;
-            recordsList.appendChild(recordItem);
+            recordsList.recordsList.appendChild(recordItem); // Düzeltilmiş yapı
         });
     }
 
@@ -339,7 +341,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Uygulama ilk açıldığında çalıştır
     renderCalendar();
     updateMoodVisibility();
 });
