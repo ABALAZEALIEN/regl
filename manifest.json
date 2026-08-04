@@ -1,11 +1,15 @@
 {
-  "id": "/index.html",
+  "id": "./index.html",
   "name": "Özel Döngü Takvimi",
   "short_name": "Takvim",
   "description": "Kişisel döngü takip uygulaması",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "fullscreen"
+  ],
   "orientation": "portrait",
   "background_color": "#fff4f6",
   "theme_color": "#d81b60",
