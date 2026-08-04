@@ -302,17 +302,6 @@ body {
   grid-template-columns: repeat(7, 1fr);
   row-gap: 8px;
   text-align: center;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.days-grid.animating-left {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-.days-grid.animating-right {
-  opacity: 0;
-  transform: translateX(20px);
 }
 
 .day-cell {
@@ -325,17 +314,13 @@ body {
   border-radius: 50%;
   margin: 0 auto;
   width: 35px;
+  cursor: pointer;
+  user-select: none;
   transition: background 0.2s, transform 0.2s;
 }
 
-.day-cell:hover {
-  background: #fce4ec;
-}
-
-.day-cell.period-active {
-  background-color: #ffd6df;
-  color: #d81b60;
-  font-weight: bold;
+.day-cell:active {
+  transform: scale(0.85);
 }
 
 .day-cell.period-start {
@@ -354,6 +339,7 @@ body {
 
 .day-cell.other-month {
   color: #ccc;
+  pointer-events: none;
 }
 
 /* Kayıtlar / Notlar Listesi */
@@ -401,7 +387,6 @@ body {
   font-size: 13px;
   color: #444;
   gap: 12px;
-  transition: background 0.2s;
 }
 
 .record-item input[type="checkbox"] {
@@ -409,10 +394,7 @@ body {
   width: 16px;
   height: 16px;
   cursor: pointer;
-  transition: transform 0.2s;
 }
-
-.record-item input[type="checkbox"]:active { transform: scale(1.2); }
 
 .delete-btn-wrapper {
   display: flex;
@@ -429,10 +411,10 @@ body {
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(216,27,96,0.3);
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.15s;
 }
 
-.delete-selected-btn:active { transform: scale(0.92); box-shadow: 0 2px 5px rgba(216,27,96,0.2); }
+.delete-selected-btn:active { transform: scale(0.92); }
 
 /* Premium ve Ayarlar */
 .premium-jest-card {
@@ -451,10 +433,7 @@ body {
   border-radius: 15px;
   margin-bottom: 12px;
   background-color: #ddd;
-  transition: transform 0.3s;
 }
-
-.biz-photo:hover { transform: scale(1.02); }
 
 .premium-jest-card h3 { color: #d81b60; font-size: 17px; margin-bottom: 8px; }
 .premium-jest-card p { font-size: 12px; color: #555; line-height: 1.4; }
@@ -474,10 +453,8 @@ body {
   border-bottom: 1px solid #f5f5f5;
   font-size: 13px;
   color: #444;
-  transition: background 0.2s;
 }
 
-.setting-item:hover { background: #fafafa; }
 .setting-val { color: #888; font-size: 12px; }
 
 /* Alt Navigasyon */
@@ -510,7 +487,6 @@ body {
 
 .nav-item i { font-size: 20px; }
 .nav-item.active { color: #d81b60; transform: translateY(-3px); }
-.nav-item:active { transform: scale(0.9); }
 
 .nav-center-btn-wrapper {
   position: relative;
@@ -537,5 +513,88 @@ body {
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.center-plus-btn:hover { transform: scale(1.08); }
-.center-plus-btn:active { transform: scale(0.9); box-shadow: 0 3px 8px rgba(216, 27, 96, 0.3); }
+.center-plus-btn:active { transform: scale(0.9); }
+
+/* Ayarlar Sekmesi Select Tasarımı */
+.setting-select {
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: 1px solid #ffb3c6;
+  background: #fff0f3;
+  color: #d81b60;
+  font-weight: bold;
+  outline: none;
+}
+
+/* Takvimde Regl Devam Günleri (2., 3., 4. günler vs.) */
+.day-cell.period-active {
+  background-color: #ffb3c6; /* Daha açık pembe */
+  color: #d81b60;
+  font-weight: bold;
+  box-shadow: none;
+  animation: none;
+}
+
+/* --- PROFESYONEL ANİMASYONLAR --- */
+
+/* Sekme Geçiş Animasyonu */
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+  animation: slideFadeIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes slideFadeIn {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Tıklama ve Genel Yumuşama */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+button {
+  transition: transform 0.15s ease, background-color 0.3s ease;
+}
+button:active {
+  transform: scale(0.93);
+}
+
+/* --- DUYGU DURUMU PÜRÜZSÜZ ANİMASYON --- */
+
+.mood-card-wrapper {
+  /* GPU Donanım İvmelendirmesi (Takılmayı engeller) */
+  will-change: opacity, transform, max-height;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              margin 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 250px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+/* Kapanırken süzülerek küçülen ve eriyen sınıf */
+.mood-card-wrapper.smooth-close {
+  opacity: 0 !important;
+  transform: translateY(-10px) scale(0.95) !important;
+  max-height: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  pointer-events: none;
+}
+
+.mood-reaction-box {
+  font-size: 15px;
+  font-weight: 800;
+  color: #d81b60;
+  padding: 10px;
+  will-change: opacity, transform;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}

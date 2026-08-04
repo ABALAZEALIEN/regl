@@ -1,297 +1,345 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const splashScreen = document.getElementById("splashScreen");
-  const mainApp = document.getElementById("mainApp");
-  const bottomNav = document.getElementById("bottomNav");
+document.addEventListener('DOMContentLoaded', () => {
+    // --- YEREL TARİH YARDIMCISI ---
+    function getLocalDateString(d = new Date()) {
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
-  setTimeout(() => {
-    splashScreen.classList.add("splash-hidden");
-    mainApp.classList.add("app-visible");
-    bottomNav.classList.add("app-visible");
-    setTimeout(() => splashScreen.style.display = "none", 600);
-  }, 3500);
+    const todayStr = getLocalDateString();
+    const periodDuration = 7; 
 
-  // Sekme Geçişleri
-  const navItems = document.querySelectorAll(".nav-item");
-  const tabContents = document.querySelectorAll(".tab-content");
+    // --- 1. AÇILIŞ EKRANI (SPLASH SCREEN) ---
+    const splash = document.getElementById('splashScreen');
+    if (splash) {
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            splash.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => splash.classList.add('splash-hidden'), 500);
+        }, 1800);
+    }
 
-  navItems.forEach(item => {
-    item.addEventListener("click", (e) => {
-      e.preventDefault();
-      const targetId = item.getAttribute("data-target");
+    // --- 2. SEKME (TAB) GEÇİŞLERİ (Animasyonlu) ---
+    const navItems = document.querySelectorAll('.nav-item');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-      navItems.forEach(nav => nav.classList.remove("active"));
-      item.classList.add("active");
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('data-target');
+            if (!targetId) return;
 
-      tabContents.forEach(tab => tab.classList.remove("active"));
-      document.getElementById(targetId).classList.add("active");
-    });
-  });
+            navItems.forEach(nav => nav.classList.remove('active'));
+            tabContents.forEach(tab => tab.classList.remove('active'));
 
-  const mainPlusBtn = document.getElementById("mainPlusBtn");
-  const quickLogBtn = document.getElementById("quickLogBtn");
-  const cycleDayNumber = document.getElementById("cycleDayNumber");
-  const daysLeftText = document.getElementById("daysLeftText");
-  const daysGrid = document.getElementById("daysGrid");
-  const monthYearDisplay = document.getElementById("monthYearDisplay");
-  const prevMonthBtn = document.getElementById("prevMonth");
-  const nextMonthBtn = document.getElementById("nextMonth");
-  const recordsList = document.getElementById("recordsList");
-  const selectAllBtn = document.getElementById("selectAllBtn");
-  const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
-  const moodCardWrapper = document.getElementById("moodCardWrapper");
-  const moodOptionsContainer = document.getElementById("moodOptionsContainer");
-  const moodReactionBox = document.getElementById("moodReactionBox");
-  const moodCardTitle = document.getElementById("moodCardTitle");
-  const moodButtons = document.querySelectorAll(".mood-btn");
-
-  let currentDate = new Date();
-  let isAllSelected = false;
-
-  const todayKey = new Date().toLocaleDateString('tr-TR');
-  let dailyMoods = JSON.parse(localStorage.getItem("dailyMoods")) || {};
-  let moodSubmittedToday = localStorage.getItem("moodSubmitted_" + todayKey) === "true";
-
-  // Duygu seçimi ve animasyonlu reaksiyon / kapanış
-  moodButtons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const mood = btn.getAttribute("data-mood");
-      dailyMoods[todayKey] = mood;
-      localStorage.setItem("dailyMoods", JSON.stringify(dailyMoods));
-      localStorage.setItem("moodSubmitted_" + todayKey, "true");
-
-      let reactionText = "";
-      if (mood === "Mutlu") {
-        reactionText = "Yessssssss beeeeeee 🎉";
-      } else if (mood === "Üzgün") {
-        reactionText = "Kıyamamm neden? 😢";
-      } else if (mood === "Sinirli" || mood === "Gergin") {
-        reactionText = "Gazamız mübarek olsunnnn ⚔️";
-      } else {
-        reactionText = "Anladım güzelim ❤️";
-      }
-
-      moodOptionsContainer.style.display = "none";
-      moodCardTitle.style.display = "none";
-      moodReactionBox.style.display = "block";
-      moodReactionBox.textContent = reactionText;
-
-      setTimeout(() => {
-        moodCardWrapper.classList.add("hidden");
-      }, 2200);
-    });
-  });
-
-  // 3 Ay (90 gün) otomatik temizlik ve veri yönetimi
-  function getCleanPeriods() {
-    let rawPeriods = JSON.parse(localStorage.getItem("periods")) || [];
-    const now = new Date().getTime();
-    const threeMonthsInMs = 90 * 24 * 60 * 60 * 1000;
-
-    let cleaned = rawPeriods.filter(dateStr => {
-      let parts = dateStr.split('.');
-      let recordDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`).getTime();
-      return (now - recordDate) <= threeMonthsInMs;
+            item.classList.add('active');
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                targetEl.classList.add('active');
+            }
+        });
     });
 
-    if (cleaned.length !== rawPeriods.length) {
-      localStorage.setItem("periods", JSON.stringify(cleaned));
-    }
-    return cleaned;
-  }
-
-  let periods = getCleanPeriods();
-
-  function getPeriodDaysForDate(dateStr) {
-    let parts = dateStr.split('.');
-    let startDate = new Date(parts[2], parts[1] - 1, parts[0]);
-    let activeDays = [];
-
-    for (let i = 0; i < 7; i++) {
-      let d = new Date(startDate);
-      d.setDate(startDate.getDate() + i);
-      activeDays.push(d.toDateString());
-    }
-    return activeDays;
-  }
-
-  function getAllActivePeriodDays() {
-    let allDaysSet = new Set();
-    periods.forEach(pDate => {
-      let weekDays = getPeriodDaysForDate(pDate);
-      weekDays.forEach(wd => allDaysSet.add(wd));
-    });
-    return allDaysSet;
-  }
-
-  // Takvim grid çizimi
-  function renderCalendar() {
-    daysGrid.innerHTML = "";
-    let year = currentDate.getFullYear();
-    let month = currentDate.getMonth();
-
-    const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-    monthYearDisplay.textContent = `${monthNames[month]} ${year}`;
-
-    let firstDayIndex = new Date(year, month, 1).getDay();
-    firstDayIndex = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
-
-    let totalDays = new Date(year, month + 1, 0).getDate();
-    let activePeriodDays = getAllActivePeriodDays();
-
-    for (let i = 0; i < firstDayIndex; i++) {
-      let div = document.createElement("div");
-      div.classList.add("day-cell", "other-month");
-      daysGrid.appendChild(div);
-    }
-
-    for (let day = 1; day <= totalDays; day++) {
-      let div = document.createElement("div");
-      div.classList.add("day-cell");
-      div.textContent = day;
-
-      let currentCellDate = new Date(year, month, day);
-      let dateStringFormatted = currentCellDate.toLocaleDateString('tr-TR');
-
-      if (periods.includes(dateStringFormatted)) {
-        div.classList.add("period-start");
-      } else if (activePeriodDays.has(currentCellDate.toDateString())) {
-        div.classList.add("period-active");
-      }
-
-      daysGrid.appendChild(div);
-    }
-  }
-
-  // Takvim Ay Geçiş Animasyonları Fonksiyonu
-  function changeMonthWithAnimation(direction) {
-    if (direction === 'prev') {
-      daysGrid.classList.add("animating-right");
-      setTimeout(() => {
-        currentDate.setMonth(currentDate.getMonth() - 1);
-        renderCalendar();
-        daysGrid.classList.remove("animating-right");
-      }, 200);
-    } else {
-      daysGrid.classList.add("animating-left");
-      setTimeout(() => {
-        currentDate.setMonth(currentDate.getMonth() + 1);
-        renderCalendar();
-        daysGrid.classList.remove("animating-left");
-      }, 200);
-    }
-  }
-
-  // Kayıtlı Tarihler Listesini Render Etme
-  function renderRecordsList() {
-    recordsList.innerHTML = "";
-    if (periods.length === 0) {
-      recordsList.innerHTML = `<div style="text-align:center; color:#aaa; font-style:italic; padding:10px; font-size:12px;">Kayıt bulunmuyor</div>`;
-      return;
-    }
-
-    periods.forEach(dateStr => {
-      let itemDiv = document.createElement("div");
-      itemDiv.classList.add("record-item");
-
-      let checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.value = dateStr;
-      checkbox.classList.add("record-checkbox");
-
-      let span = document.createElement("span");
-      span.textContent = `${dateStr} başlangıç tarihi`;
-
-      itemDiv.appendChild(checkbox);
-      itemDiv.appendChild(span);
-      recordsList.appendChild(itemDiv);
-    });
-  }
-
-  function updateUI() {
-    periods = getCleanPeriods();
-
-    const activeDays = getAllActivePeriodDays();
-    const todayStringDate = new Date().toDateString();
-    const isCurrentlyOnPeriod = activeDays.has(todayStringDate);
-
-    moodSubmittedToday = localStorage.getItem("moodSubmitted_" + todayKey) === "true";
-    if (isCurrentlyOnPeriod && !moodSubmittedToday) {
-      moodCardWrapper.classList.remove("hidden");
-    } else {
-      moodCardWrapper.classList.add("hidden");
-    }
-
-    if (periods.length === 0) {
-      cycleDayNumber.textContent = "1";
-      daysLeftText.textContent = "Kayıt bekleniyor";
-      renderCalendar();
-      renderRecordsList();
-      return;
-    }
-
-    const lastDateStr = periods[0];
-    const parts = lastDateStr.split('.');
-    const lastDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-    const today = new Date();
+    // --- 3. VERİ YÖNETİMİ ---
+    let periodDates = JSON.parse(localStorage.getItem('periodDates')) || [];
     
-    const diffTime = Math.abs(today - lastDate);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    // --- 4. DUYGU DURUMU VE ZAMANLAYICILAR (AKILLI KONTROL) ---
+    const moodCardWrapper = document.getElementById('moodCardWrapper');
+    const moodReactionBox = document.getElementById('moodReactionBox');
+    const moodOptionsContainer = document.getElementById('moodOptionsContainer');
+    const moodCardTitle = document.getElementById('moodCardTitle');
+    const moodBtns = document.querySelectorAll('.mood-btn');
 
-    cycleDayNumber.textContent = diffDays;
+    let currentMood = localStorage.getItem('savedMood');
+    let moodSetDate = localStorage.getItem('moodSetDate');
+    
+    let moodFadeOutTimer;
+    let wrapperHideTimer;
 
-    const remaining = 28 - diffDays;
-    if (remaining > 0) {
-      daysLeftText.textContent = `${remaining} Gün kaldı`;
-    } else {
-      daysLeftText.textContent = `Döngü günü geldi/geçti`;
+    const moodResponses = {
+        "Mutlu": "Hep böyle gülmeye devam et bebeğim, seni seviyorum! ❤️",
+        "Üzgün": "Kıyamam sana... Yanında değilsem bile kalbim seninle güzelim. 🥺",
+        "Sinirli": "Tamam tamam sakin ol, hepsi hormonlardan. Derin bir nefes al... 💆‍♀️",
+        "Gergin": "Sıcak bir şeyler içip biraz uzanmaya ne dersin güzelim? Geçecek... 🌸",
+        "Bilmiyorum/Diğer": "Ne hissedersen hisset, her halinde yanındayım. 🫂"
+    };
+
+    function isTodayPeriodDay() {
+        if(periodDates.length === 0) return false;
+        const todayLocal = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+        
+        for (let dateStr of periodDates) {
+            const [y, m, d] = dateStr.split('-');
+            const sDate = new Date(y, m - 1, d);
+            const diffDays = Math.floor((todayLocal - sDate) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays >= 0 && diffDays < periodDuration) return true;
+        }
+        return false;
     }
 
+    function updateMoodVisibility() {
+        if (!moodCardWrapper) return;
+        
+        // Önceki animasyon ve gizleme komutlarını iptal et ki kart takılı kalmasın
+        clearTimeout(wrapperHideTimer);
+        clearTimeout(moodFadeOutTimer);
+        
+        if (isTodayPeriodDay()) {
+            moodCardWrapper.style.display = 'block';
+            moodCardWrapper.classList.remove('hidden');
+            moodCardWrapper.style.opacity = '1';
+            
+            // Üstünde daha önceden kalma silinme efekti varsa temizle
+            moodReactionBox.classList.remove('fade-out-msg');
+
+            // Eğer bugün zaten bir duygu seçildiyse mesajı göster, yoksa soruları sor
+            if (currentMood && moodSetDate === todayStr) {
+                showMoodReaction(currentMood, false); 
+            } else {
+                moodOptionsContainer.style.display = 'flex';
+                moodCardTitle.style.display = 'block';
+                moodReactionBox.style.display = 'none';
+            }
+        } else {
+            moodCardWrapper.style.display = 'none';
+        }
+    }
+
+    function showMoodReaction(mood, triggerTimeout = true) {
+        if (!moodOptionsContainer || !moodCardTitle || !moodReactionBox) return;
+        
+        moodOptionsContainer.style.display = 'none';
+        moodCardTitle.style.display = 'none';
+        
+        moodReactionBox.innerHTML = moodResponses[mood] || "Seni çok seviyorum!";
+        moodReactionBox.classList.remove('fade-out-msg');
+        moodReactionBox.style.display = 'block';
+        moodReactionBox.style.opacity = '1';
+
+        clearTimeout(moodFadeOutTimer);
+        clearTimeout(wrapperHideTimer);
+
+        if(triggerTimeout) {
+            moodFadeOutTimer = setTimeout(() => {
+                moodReactionBox.classList.add('fade-out-msg');
+                wrapperHideTimer = setTimeout(() => {
+                    if(moodCardWrapper) moodCardWrapper.style.display = 'none';
+                }, 1000); 
+            }, 6500); 
+        }
+    }
+
+    moodBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const selectedMood = btn.getAttribute('data-mood');
+            localStorage.setItem('savedMood', selectedMood);
+            localStorage.setItem('moodSetDate', todayStr);
+            currentMood = selectedMood;
+            moodSetDate = todayStr;
+            showMoodReaction(selectedMood, true);
+        });
+    });
+
+    // --- GEÇMİŞ VERİLERE GÖRE AKILLI DÖNGÜ HESAPLAMA ---
+    function getAverageCycleLength() {
+        if (periodDates.length < 2) return 28;
+        const sorted = [...periodDates].sort((a, b) => new Date(a) - new Date(b));
+        let totalDays = 0;
+        let validCycles = 0;
+
+        for (let i = 1; i < sorted.length; i++) {
+            const date1 = new Date(sorted[i-1]);
+            const date2 = new Date(sorted[i]);
+            const diffDays = Math.ceil(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+            if (diffDays >= 15 && diffDays <= 45) {
+                totalDays += diffDays;
+                validCycles++;
+            }
+        }
+        if (validCycles === 0) return 28;
+        return Math.round(totalDays / validCycles);
+    }
+
+    // --- 5. TAKVİM VE EKRAN RENDER İŞLEMLERİ ---
+    const daysGrid = document.getElementById('daysGrid');
+    const monthYearDisplay = document.getElementById('monthYearDisplay');
+    const cycleDayNumber = document.getElementById('cycleDayNumber');
+    const daysLeftText = document.getElementById('daysLeftText');
+    const mainPlusBtn = document.getElementById('mainPlusBtn');
+    const quickLogBtn = document.getElementById('quickLogBtn');
+
+    let currentDate = new Date();
+
+    function renderCalendar() {
+        if (!daysGrid || !monthYearDisplay) return;
+
+        daysGrid.innerHTML = '';
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const monthNames = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+        
+        monthYearDisplay.textContent = `${monthNames[month]} ${year}`;
+
+        let emptyDays = firstDay === 0 ? 6 : firstDay - 1;
+        for (let i = 0; i < emptyDays; i++) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'day-cell other-month';
+            daysGrid.appendChild(emptyDiv);
+        }
+
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'day-cell';
+            dayDiv.textContent = i;
+            dayDiv.style.cursor = 'pointer';
+
+            const cellDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+            const cellDateObj = new Date(year, month, i);
+
+            let isStartDay = false;
+            let isInsidePeriod = false;
+
+            for (let startDateStr of periodDates) {
+                const [sy, sm, sd] = startDateStr.split('-');
+                const sDateObj = new Date(sy, sm - 1, sd);
+                const diffDays = Math.floor((cellDateObj - sDateObj) / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 0) {
+                    isStartDay = true; break;
+                } else if (diffDays > 0 && diffDays < periodDuration) {
+                    isInsidePeriod = true;
+                }
+            }
+
+            if (isStartDay) dayDiv.classList.add('period-start');
+            else if (isInsidePeriod) dayDiv.classList.add('period-active');
+
+            dayDiv.addEventListener('click', () => togglePeriodDate(cellDateStr));
+            daysGrid.appendChild(dayDiv);
+        }
+
+        updateDashboardInfo();
+        renderRecords();
+        updateMoodVisibility();
+    }
+
+    const prevBtn = document.getElementById('prevMonth');
+    const nextBtn = document.getElementById('nextMonth');
+
+    if (prevBtn) prevBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); });
+    if (nextBtn) nextBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); });
+
+    function togglePeriodDate(dateStr) {
+        if (periodDates.includes(dateStr)) {
+            periodDates = periodDates.filter(d => d !== dateStr);
+        } else {
+            periodDates.push(dateStr);
+        }
+        periodDates.sort().reverse();
+        localStorage.setItem('periodDates', JSON.stringify(periodDates));
+        
+        // EĞER BUGÜNÜ REGL OLARAK İŞARETLEDİYSE VEYA KALDIRDIYSA HAFIZAYI TAMAMEN SIFIRLA!
+        if (dateStr === todayStr) {
+            localStorage.removeItem('savedMood');
+            localStorage.removeItem('moodSetDate');
+            currentMood = null;
+            moodSetDate = null;
+        }
+        
+        renderCalendar();
+    }
+
+    function toggleTodayPeriod() { togglePeriodDate(todayStr); }
+
+    if (mainPlusBtn) mainPlusBtn.addEventListener('click', toggleTodayPeriod);
+    if (quickLogBtn) quickLogBtn.addEventListener('click', toggleTodayPeriod);
+
+    function updateDashboardInfo() {
+        if (!cycleDayNumber || !daysLeftText) return;
+
+        if (periodDates.length === 0) {
+            cycleDayNumber.textContent = "?";
+            daysLeftText.textContent = "Kayıt bekleniyor";
+            return;
+        }
+
+        const sortedDates = [...periodDates].sort().reverse();
+        const lastPeriodParts = sortedDates[0].split('-');
+        const lastPeriod = new Date(lastPeriodParts[0], lastPeriodParts[1] - 1, lastPeriodParts[2]);
+        const todayLocal = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
+
+        const diffDays = Math.floor((todayLocal - lastPeriod) / (1000 * 60 * 60 * 24)) + 1;
+
+        cycleDayNumber.textContent = diffDays >= 1 ? diffDays : "1";
+
+        const dynamicCycleLength = getAverageCycleLength(); 
+        const nextPeriod = new Date(lastPeriod);
+        nextPeriod.setDate(nextPeriod.getDate() + dynamicCycleLength);
+
+        const daysLeft = Math.ceil((nextPeriod - todayLocal) / (1000 * 60 * 60 * 24));
+
+        if (daysLeft > 0) daysLeftText.textContent = `Tahmini ${daysLeft} gün kaldı`;
+        else if (daysLeft === 0) daysLeftText.textContent = "Bugün bekleniyor";
+        else daysLeftText.textContent = `${Math.abs(daysLeft)} gün gecikti`;
+    }
+
+    const recordsList = document.getElementById('recordsList');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+
+    function renderRecords() {
+        if (!recordsList) return;
+        recordsList.innerHTML = '';
+        if (periodDates.length === 0) {
+            recordsList.innerHTML = '<div style="text-align:center; padding:10px; color:#888;">Henüz bir tarih kaydetmedin güzelim.</div>';
+            return;
+        }
+
+        periodDates.forEach(dateStr => {
+            const [y, m, d] = dateStr.split('-');
+            const recordItem = document.createElement('div');
+            recordItem.className = 'record-item';
+            recordItem.innerHTML = `
+                <input type="checkbox" value="${dateStr}" class="record-check">
+                <span>${d}.${m}.${y} - Regl Başlangıcı</span>
+            `;
+            recordsList.appendChild(recordItem);
+        });
+    }
+
+    let isAllSelected = false;
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.record-check');
+            isAllSelected = !isAllSelected;
+            checkboxes.forEach(cb => cb.checked = isAllSelected);
+            selectAllBtn.textContent = isAllSelected ? "Seçimi Kaldır" : "Hepsini Seç";
+        });
+    }
+
+    if (deleteSelectedBtn) {
+        deleteSelectedBtn.addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.record-check:checked');
+            if (checkboxes.length === 0) {
+                alert("Silmek için önce kutucuklardan bir tarih seçmelisin.");
+                return;
+            }
+            if (confirm("Seçtiğin tarihleri siliyorum, emin misin?")) {
+                checkboxes.forEach(cb => { periodDates = periodDates.filter(d => d !== cb.value); });
+                localStorage.setItem('periodDates', JSON.stringify(periodDates));
+                isAllSelected = false;
+                if (selectAllBtn) selectAllBtn.textContent = "Hepsini Seç";
+                renderCalendar();
+            }
+        });
+    }
+
+    // Uygulama ilk açıldığında çalıştır
     renderCalendar();
-    renderRecordsList();
-  }
-
-  function logToday() {
-    const todayStr = new Date().toLocaleDateString('tr-TR');
-    if (!periods.includes(todayStr)) {
-      periods.unshift(todayStr);
-      localStorage.setItem("periods", JSON.stringify(periods));
-      localStorage.removeItem("moodSubmitted_" + todayKey);
-      updateUI();
-      alert("Bugünün tarihi ve takip eden 7 günlük döngü başarıyla işlendi güzelim! ❤️");
-    } else {
-      alert("Bu tarih zaten kayıtlı.");
-    }
-  }
-
-  mainPlusBtn.addEventListener("click", logToday);
-  quickLogBtn.addEventListener("click", logToday);
-
-  prevMonthBtn.addEventListener("click", () => changeMonthWithAnimation('prev'));
-  nextMonthBtn.addEventListener("click", () => changeMonthWithAnimation('next'));
-
-  selectAllBtn.addEventListener("click", () => {
-    const checkboxes = document.querySelectorAll(".record-checkbox");
-    isAllSelected = !isAllSelected;
-    checkboxes.forEach(cb => cb.checked = isAllSelected);
-    selectAllBtn.textContent = isAllSelected ? "Seçimi Kaldır" : "Hepsini Seç";
-  });
-
-  deleteSelectedBtn.addEventListener("click", () => {
-    const checkboxes = document.querySelectorAll(".record-checkbox:checked");
-    if (checkboxes.length === 0) {
-      alert("Lütfen silinecek kayıtları seç güzelim.");
-      return;
-    }
-
-    const valuesToDelete = Array.from(checkboxes).map(cb => cb.value);
-    periods = periods.filter(p => !valuesToDelete.includes(p));
-    localStorage.setItem("periods", JSON.stringify(periods));
-
-    isAllSelected = false;
-    selectAllBtn.textContent = "Hepsini Seç";
-    updateUI();
-    alert("Seçilen kayıtlar başarıyla temizlendi.");
-  });
-
-  updateUI();
+    updateMoodVisibility();
 });
