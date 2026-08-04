@@ -6,31 +6,19 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-body {
-  background-color: #1a1a1a;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: #fff4f6;
   overflow: hidden;
 }
 
 .phone-frame {
   position: relative;
   width: 100%;
-  max-width: 414px;
   height: 100%;
-  max-height: 896px;
   background-color: #fff4f6;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-}
-
-@media (min-width: 415px) {
-  .phone-frame {
-    border-radius: 40px;
-    border: 10px solid #333;
-  }
 }
 
 /* Açılış Ekranı Animasyonu */
@@ -528,7 +516,7 @@ body {
 
 /* Takvimde Regl Devam Günleri (2., 3., 4. günler vs.) */
 .day-cell.period-active {
-  background-color: #ffb3c6; /* Daha açık pembe */
+  background-color: #ffb3c6;
   color: #d81b60;
   font-weight: bold;
   box-shadow: none;
@@ -536,8 +524,6 @@ body {
 }
 
 /* --- PROFESYONEL ANİMASYONLAR --- */
-
-/* Sekme Geçiş Animasyonu */
 .tab-content {
   display: none;
 }
@@ -551,11 +537,6 @@ body {
   100% { opacity: 1; transform: translateY(0); }
 }
 
-/* Tıklama ve Genel Yumuşama */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
 button {
   transition: transform 0.15s ease, background-color 0.3s ease;
 }
@@ -563,10 +544,7 @@ button:active {
   transform: scale(0.93);
 }
 
-/* --- DUYGU DURUMU PÜRÜZSÜZ ANİMASYON --- */
-
 .mood-card-wrapper {
-  /* GPU Donanım İvmelendirmesi (Takılmayı engeller) */
   will-change: opacity, transform, max-height;
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
@@ -579,7 +557,6 @@ button:active {
   margin-bottom: 12px;
 }
 
-/* Kapanırken süzülerek küçülen ve eriyen sınıf */
 .mood-card-wrapper.smooth-close {
   opacity: 0 !important;
   transform: translateY(-10px) scale(0.95) !important;
