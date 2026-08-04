@@ -244,17 +244,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function forceLogTodayAsPeriod() {
-        if (!periodDates.includes(todayStr)) {
+        if (periodDates.includes(todayStr)) {
+            // Zaten işaretliyse, tekrar basınca kaydı kaldır (toggle-off)
+            periodDates = periodDates.filter(d => d !== todayStr);
+        } else {
             periodDates.push(todayStr);
             periodDates.sort().reverse();
-            localStorage.setItem('periodDates', JSON.stringify(periodDates));
         }
-        
+        localStorage.setItem('periodDates', JSON.stringify(periodDates));
+
         localStorage.removeItem('savedMood');
         localStorage.removeItem('moodSetDate');
         currentMood = null;
         moodSetDate = null;
-        
+
         renderCalendar();
     }
 
@@ -310,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="checkbox" value="${dateStr}" class="record-check">
                 <span>${d}.${m}.${y} - Regl Başlangıcı</span>
             `;
-            recordsList.recordsList.appendChild(recordItem); // Düzeltilmiş yapı
+            recordsList.appendChild(recordItem);
         });
     }
 

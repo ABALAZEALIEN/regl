@@ -1,4 +1,4 @@
-const CACHE_NAME = "regli-takip-v3";
+const CACHE_NAME = "regli-takip-v4";
 const assets = [
   "./",
   "./index.html",
